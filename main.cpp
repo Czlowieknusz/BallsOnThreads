@@ -4,6 +4,7 @@
 #include <ncurses.h>
 #include <unistd.h>
 #include <vector>
+#include <mutex>
 
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
@@ -13,6 +14,7 @@
  */
 int maxX, maxY;
 std::vector<Ball> balls;
+std::mutex ncurses_mutex;
 
 void checkIfHitEdge(Ball &ball) {
     if (ball.getCoordinateX() + ball.getVelocityX() <= 0 or ball.getCoordinateX() + ball.getVelocityX() >= maxX) {
@@ -24,50 +26,59 @@ void checkIfHitEdge(Ball &ball) {
     }
 }
 
+void animateBalls() {
+    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+    erase();
+    for (auto &ball : balls) {
+        mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
+        refresh();
+    }
+}
+
 void animationLoop(unsigned index) {
-//    Ball ball(5, 5);
-    while (balls[index].getVelocityX() != 0 and balls[index].getVelocityY() != 0 ) {
-        for (unsigned i = 0; i < 30; ++i) {
+    while (balls[index].getVelocityX() != 0 and balls[index].getVelocityY() != 0) {
+        for (unsigned i = 0; i < 10; ++i) {
             checkIfHitEdge(balls[index]);
             balls[index].move(balls[index].getVelocityX(), balls[index].getVelocityY());
-            move(balls[index].getCoordinateX(), balls[index].getCoordinateY());
-            printw("%d, %d", balls[index].getCoordinateX(), balls[index].getCoordinateY());
-            refresh();
+            animateBalls();
             usleep(100000);
-            erase();
         }
         balls[index].decrementateVelX();
         balls[index].decrementateVelY();
     }
 }
 
-void animateBalls() {
-    erase();
-    for (auto &ball : balls) {
-        move(ball.getCoordinateX(), ball.getCoordinateY());
-        printw("%d, %d", ball.getCoordinateX(), ball.getCoordinateY());
-
-    }
-}
-
 void generateBall() {
-    Ball buf(5, 5);
+    Ball buf(2,2);
     balls.push_back(buf);
 }
 
 int main() {
     initscr();
     getmaxyx(stdscr, maxX, maxY);
-    for (unsigned i = 0; i < 1; ++i) {
+    std::vector<std::thread> threadBalls;
+    while(true) {
         generateBall();
+        std::thread threadBall(animationLoop, balls.size()-1);
+        threadBalls.push_back(std::move(threadBall));
+        threadBalls[threadBalls.size()-1].join();
+        usleep(5000);
     }
-    for (unsigned i = 0; i < 1; ++i) {
+/*    for (unsigned i = 0; i < 3; ++i) {
+        generateBall(i);
+    }
+
+    for (unsigned i = 0; i < 3; ++i) {
         std::thread threadBall(animationLoop, i);
-        threadBall.join();
+        threadBalls.push_back(std::move(threadBall));
     }
+    for (unsigned i = 0; i < 3; ++i) {
+        threadBalls[i].join();
+    }*/
+/*
     std::cout << "max = " << maxX << "; maxy = " << maxY << std::endl;
-    refresh();
     getch();
     endwin();
     return 0;
+*/
 }

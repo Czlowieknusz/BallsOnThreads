@@ -33,8 +33,8 @@ void Ball::move(int valX, int valY) {
     moveY(valY);
 }
 
-Ball::Ball(int coordinateX, int coordinateY) : coordinateX(coordinateX), coordinateY(coordinateY), velocityX(2),
-                                               velocityY(2) {}
+Ball::Ball(int coordinateX, int coordinateY) : coordinateX(coordinateX), coordinateY(coordinateY), velocityX(3),
+                                               velocityY(3) {}
 
 int Ball::getVelocityX() const {
     return velocityX;
