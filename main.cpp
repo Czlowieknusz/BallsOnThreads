@@ -13,11 +13,7 @@
  * Wykorzystana ma być biblioteka ncurses w celu wizualizacji.
  *
  */
-/*
- * Update:
- *  apka nie działa, ponieważ prędkość może być równa 0, wtedy automatycznie piłka się zatrzymuje.
- *  Przyspieszenie następuje, ponieważ można dekrementować
- */
+
 int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
@@ -38,8 +34,10 @@ void animateBalls() {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
     erase();
     for (auto &ball : balls) {
-        mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
-        refresh();
+        if (ball.getVelocityX() != 0 or ball.getVelocityY() != 0) {
+            mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
+            refresh();
+        }
     }
 }
 
@@ -63,8 +61,8 @@ void generateBall() {
 
 void calculateXYVals() {
     getmaxyx(stdscr, maxX, maxY);
-    initX = maxX - 5;
-    initY = maxY/2 - 5;
+    initX = maxX-1;
+    initY = maxY / 2;
 }
 
 int main() {
