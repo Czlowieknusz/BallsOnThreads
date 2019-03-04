@@ -61,8 +61,8 @@ int main() {
         generateBall();
         std::thread threadBall(animationLoop, balls.size()-1);
         threadBalls.push_back(std::move(threadBall));
-        threadBalls[threadBalls.size()-1].join();
-        usleep(5000);
+//        threadBalls[threadBalls.size()-1].join();
+        usleep(500000);
     }
 /*    for (unsigned i = 0; i < 3; ++i) {
         generateBall(i);
