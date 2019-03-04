@@ -5,28 +5,35 @@
 #ifndef BALLSONTHREADS_BALL_H
 #define BALLSONTHREADS_BALL_H
 
+#include "DirectionGenerator.h"
 
 class Ball {
 public:
-    void moveX(int);
-    void moveY(int);
-    void move(int, int);
+    void moveX();
+
+    void moveY();
+
+    void move();
 
     int getCoordinateX() const;
 
-    void setCoordinateX(int  coordinateX);
+    void setCoordinateX(int coordinateX);
 
     int getCoordinateY() const;
 
     void setCoordinateY(int coordinateY);
 
-    Ball(int coordinateX, int coordinateY);
+//    Ball(int coordinateX, int coordinateY, int velocity);
+
+    Ball(int coordinateX, int coordinateY, int random);
 
 private:
     int coordinateX;
     int coordinateY;
     int velocityX;
     int velocityY;
+    char ballSign;
+
 public:
     int getVelocityX() const;
 
@@ -40,9 +47,9 @@ public:
 
     void turnVelY();
 
-    void decrementateVelX();
+    void decrementVelX();
 
-    void decrementateVelY();
+    void decrementVelY();
 };
 
 

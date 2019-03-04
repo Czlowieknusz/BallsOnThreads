@@ -5,6 +5,7 @@
 #include <unistd.h>
 #include <vector>
 #include <mutex>
+#include "DirectionGenerator.h"
 
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
@@ -12,16 +13,23 @@
  * Wykorzystana ma być biblioteka ncurses w celu wizualizacji.
  *
  */
-int maxX, maxY;
+/*
+ * Update:
+ *  apka nie działa, ponieważ prędkość może być równa 0, wtedy automatycznie piłka się zatrzymuje.
+ *  Przyspieszenie następuje, ponieważ można dekrementować
+ */
+int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
+DirectionGenerator directionGenerator;
 
 void checkIfHitEdge(Ball &ball) {
-    if (ball.getCoordinateX() + ball.getVelocityX() <= 0 or ball.getCoordinateX() + ball.getVelocityX() >= maxX) {
+    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+    if (ball.getCoordinateX() == 0 or ball.getCoordinateX() == maxX) {
         ball.turnVelX();
     }
 
-    if (ball.getCoordinateY() + ball.getVelocityY() <= 0 or ball.getCoordinateY() + ball.getVelocityY() >= maxY) {
+    if (ball.getCoordinateY() == 0 or ball.getCoordinateY() == maxY) {
         ball.turnVelY();
     }
 }
@@ -37,48 +45,42 @@ void animateBalls() {
 
 void animationLoop(unsigned index) {
     while (balls[index].getVelocityX() != 0 and balls[index].getVelocityY() != 0) {
-        for (unsigned i = 0; i < 10; ++i) {
+        for (unsigned i = 0; i < 50; ++i) {
             checkIfHitEdge(balls[index]);
-            balls[index].move(balls[index].getVelocityX(), balls[index].getVelocityY());
+            balls[index].move();
             animateBalls();
-            usleep(100000);
+            usleep(100000 / abs(balls[index].getVelocityX()));
         }
-        balls[index].decrementateVelX();
-        balls[index].decrementateVelY();
+        balls[index].decrementVelX();
+        balls[index].decrementVelY();
     }
 }
 
 void generateBall() {
-    Ball buf(2,2);
+    Ball buf(initX, initY, directionGenerator.getRandom());
     balls.push_back(buf);
+}
+
+void calculateXYVals() {
+    getmaxyx(stdscr, maxX, maxY);
+    initX = maxX - 5;
+    initY = maxY/2 - 5;
 }
 
 int main() {
     initscr();
-    getmaxyx(stdscr, maxX, maxY);
+    calculateXYVals();
     std::vector<std::thread> threadBalls;
-    while(true) {
+    unsigned numberOfIteration = 0;
+    while (numberOfIteration < 100) {
+        usleep(5000000);
+        std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
         generateBall();
-        std::thread threadBall(animationLoop, balls.size()-1);
+        std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));
-//        threadBalls[threadBalls.size()-1].join();
-        usleep(500000);
+        ++numberOfIteration;
     }
-/*    for (unsigned i = 0; i < 3; ++i) {
-        generateBall(i);
-    }
-
-    for (unsigned i = 0; i < 3; ++i) {
-        std::thread threadBall(animationLoop, i);
-        threadBalls.push_back(std::move(threadBall));
-    }
-    for (unsigned i = 0; i < 3; ++i) {
-        threadBalls[i].join();
-    }*/
-/*
-    std::cout << "max = " << maxX << "; maxy = " << maxY << std::endl;
     getch();
     endwin();
     return 0;
-*/
 }

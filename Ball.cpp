@@ -20,21 +20,26 @@ void Ball::setCoordinateY(int coordinateY) {
     Ball::coordinateY = coordinateY;
 }
 
-void Ball::moveX(int val) {
-    Ball::coordinateX += val;
+void Ball::moveX() {
+    if (velocityX < 0) {
+        --coordinateX;
+    } else {
+        ++coordinateX;
+    }
 }
 
-void Ball::moveY(int val) {
-    Ball::coordinateY += val;
+void Ball::moveY() {
+    if (velocityY < 0) {
+        --coordinateY;
+    } else {
+        ++coordinateY;
+    }
 }
 
-void Ball::move(int valX, int valY) {
-    moveX(valX);
-    moveY(valY);
+void Ball::move() {
+    moveX();
+    moveY();
 }
-
-Ball::Ball(int coordinateX, int coordinateY) : coordinateX(coordinateX), coordinateY(coordinateY), velocityX(3),
-                                               velocityY(3) {}
 
 int Ball::getVelocityX() const {
     return velocityX;
@@ -60,10 +65,34 @@ void Ball::turnVelY() {
     velocityY *= (-1);
 }
 
-void Ball::decrementateVelX() {
-    --velocityX;
+void Ball::decrementVelX() {
+    if (velocityX == 0) {}
+    else if (velocityX < 0) {
+        ++velocityX;
+    } else {
+        --velocityX;
+    }
 }
 
-void Ball::decrementateVelY() {
-    --velocityY;
+void Ball::decrementVelY() {
+    if (velocityY == 0) {}
+    else if (velocityY < 0) {
+        ++velocityY;
+    } else {
+        --velocityY;
+    }
+}
+
+Ball::Ball(int coordX, int coordY, int random)
+        : coordinateX(coordX), coordinateY(coordY) {
+    if (random == 0) {
+        velocityX = -2;
+        velocityY = -2;
+    } else if (random == 1) {
+        velocityX = 0;
+        velocityY = -2;
+    } else {
+        velocityX = -2;
+        velocityY = 2;
+    }
 }
