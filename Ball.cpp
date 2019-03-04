@@ -21,7 +21,8 @@ void Ball::setCoordinateY(int coordinateY) {
 }
 
 void Ball::moveX() {
-    if (velocityX < 0) {
+    if (velocityX == 0) {}
+    else if (velocityX < 0) {
         --coordinateX;
     } else {
         ++coordinateX;
@@ -29,7 +30,8 @@ void Ball::moveX() {
 }
 
 void Ball::moveY() {
-    if (velocityY < 0) {
+    if (velocityY == 0) {}
+    else if (velocityY < 0) {
         --coordinateY;
     } else {
         ++coordinateY;
@@ -89,8 +91,8 @@ Ball::Ball(int coordX, int coordY, int random)
         velocityX = -2;
         velocityY = -2;
     } else if (random == 1) {
-        velocityX = 0;
-        velocityY = -2;
+        velocityX = -2;
+        velocityY = 0;
     } else {
         velocityX = -2;
         velocityY = 2;

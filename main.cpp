@@ -44,7 +44,7 @@ void animateBalls() {
 }
 
 void animationLoop(unsigned index) {
-    while (balls[index].getVelocityX() != 0 and balls[index].getVelocityY() != 0) {
+    while (balls[index].getVelocityX() != 0 or balls[index].getVelocityY() != 0) {
         for (unsigned i = 0; i < 50; ++i) {
             checkIfHitEdge(balls[index]);
             balls[index].move();
@@ -73,7 +73,7 @@ int main() {
     std::vector<std::thread> threadBalls;
     unsigned numberOfIteration = 0;
     while (numberOfIteration < 100) {
-        usleep(5000000);
+        usleep(2000000);
         std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
         generateBall();
         std::thread threadBall(animationLoop, balls.size() - 1);
