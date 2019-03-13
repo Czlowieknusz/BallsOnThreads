@@ -14,6 +14,10 @@
  *
  */
 
+/*
+ * TODO: Grawitacja i kursor koło kólki ma zniknąć
+ */
+
 int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
@@ -56,6 +60,7 @@ void animationLoop(unsigned index) {
 
 void generateBall() {
     Ball buf(initX, initY, directionGenerator.getRandom());
+    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
     balls.push_back(buf);
 }
 
@@ -71,8 +76,8 @@ int main() {
     std::vector<std::thread> threadBalls;
     unsigned numberOfIteration = 0;
     while (numberOfIteration < 100) {
-        usleep(2000000);
-        std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+        usleep(1500000);
+        //
         generateBall();
         std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));

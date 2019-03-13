@@ -11,7 +11,7 @@ int Ball::getCoordinateX() const {
 void Ball::setCoordinateX(int coordinateX) {
     Ball::coordinateX = coordinateX;
 }
-
+//7 i 6
 int Ball::getCoordinateY() const {
     return coordinateY;
 }
@@ -88,13 +88,13 @@ void Ball::decrementVelY() {
 Ball::Ball(int coordX, int coordY, int random)
         : coordinateX(coordX), coordinateY(coordY) {
     if (random == 0) {
-        velocityX = -2;
-        velocityY = -2;
+        velocityX = -5;
+        velocityY = -5;
     } else if (random == 1) {
-        velocityX = -2;
+        velocityX = -5;
         velocityY = 0;
     } else {
-        velocityX = -2;
-        velocityY = 2;
+        velocityX = -5;
+        velocityY = 5;
     }
 }
