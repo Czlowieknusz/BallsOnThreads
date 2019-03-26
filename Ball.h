@@ -30,18 +30,17 @@ public:
 private:
     int coordinateX;
     int coordinateY;
-    int velocityX;
-    int velocityY;
-    char ballSign;
+    double velocityX;
+    double velocityY;
 
 public:
-    int getVelocityX() const;
+    double getVelocityX() const;
 
-    void setVelocityX(int velocityX);
+    void setVelocityX(double velocityX);
 
-    int getVelocityY() const;
+    double getVelocityY() const;
 
-    void setVelocityY(int velocityY);
+    void setVelocityY(double velocityY);
 
     void turnVelX();
 
@@ -50,6 +49,8 @@ public:
     void decrementVelX();
 
     void decrementVelY();
+
+    void multiplyVelY(double multiplier);
 };
 
 

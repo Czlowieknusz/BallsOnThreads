@@ -21,7 +21,7 @@
 int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
-DirectionGenerator directionGenerator;
+//DirectionGenerator directionGenerator;
 
 void checkIfHitEdge(Ball &ball) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
@@ -51,14 +51,12 @@ void animationLoop(unsigned index) {
             checkIfHitEdge(balls[index]);
             balls[index].move();
             animateBalls();
-            usleep(100000 / abs(balls[index].getVelocityX()));
+            usleep(100000);
         }
-        balls[index].decrementVelX();
-        balls[index].decrementVelY();
     }
 }
 
-void generateBall() {
+void generateBall(DirectionGenerator &directionGenerator) {
     Ball buf(initX, initY, directionGenerator.getRandom());
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
     balls.push_back(buf);
@@ -66,22 +64,37 @@ void generateBall() {
 
 void calculateXYVals() {
     getmaxyx(stdscr, maxX, maxY);
-    initX = maxX-1;
+    initX = maxX - 1;
     initY = maxY / 2;
 }
 
+void simulateGravity() {
+    usleep(3000);
+    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+    for (auto &ball : balls) {
+        ball.multiplyVelY(0.2);
+    }
+}
+
+/*
+ * TODO: Add thread ending program; Kulki maja sie generowac i nie znikac koniec na watku przycisk
+ * */
+
 int main() {
     initscr();
+    curs_set(0);
     calculateXYVals();
+    DirectionGenerator directionGenerator;
     std::vector<std::thread> threadBalls;
+    std::thread gravitation(simulateGravity);
     unsigned numberOfIteration = 0;
-    while (numberOfIteration < 100) {
+    while (true) {
         usleep(1500000);
         //
-        generateBall();
+        generateBall(directionGenerator);
         std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));
-        ++numberOfIteration;
+        //++numberOfIteration;
     }
     getch();
     endwin();

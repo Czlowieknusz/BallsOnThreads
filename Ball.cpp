@@ -3,6 +3,7 @@
 //
 
 #include "Ball.h"
+#include <iostream>
 
 int Ball::getCoordinateX() const {
     return coordinateX;
@@ -11,6 +12,7 @@ int Ball::getCoordinateX() const {
 void Ball::setCoordinateX(int coordinateX) {
     Ball::coordinateX = coordinateX;
 }
+
 //7 i 6
 int Ball::getCoordinateY() const {
     return coordinateY;
@@ -30,12 +32,7 @@ void Ball::moveX() {
 }
 
 void Ball::moveY() {
-    if (velocityY == 0) {}
-    else if (velocityY < 0) {
-        --coordinateY;
-    } else {
-        ++coordinateY;
-    }
+    coordinateY += static_cast<int>(velocityY);
 }
 
 void Ball::move() {
@@ -43,19 +40,19 @@ void Ball::move() {
     moveY();
 }
 
-int Ball::getVelocityX() const {
+double Ball::getVelocityX() const {
     return velocityX;
 }
 
-void Ball::setVelocityX(int velocityX) {
+void Ball::setVelocityX(double velocityX) {
     Ball::velocityX = velocityX;
 }
 
-int Ball::getVelocityY() const {
+double Ball::getVelocityY() const {
     return velocityY;
 }
 
-void Ball::setVelocityY(int velocityY) {
+void Ball::setVelocityY(double velocityY) {
     Ball::velocityY = velocityY;
 }
 
@@ -88,13 +85,22 @@ void Ball::decrementVelY() {
 Ball::Ball(int coordX, int coordY, int random)
         : coordinateX(coordX), coordinateY(coordY) {
     if (random == 0) {
-        velocityX = -5;
-        velocityY = -5;
+        velocityX = -1;
+        velocityY = -1;
     } else if (random == 1) {
-        velocityX = -5;
+        velocityX = -1;
         velocityY = 0;
     } else {
-        velocityX = -5;
-        velocityY = 5;
+        velocityX = -1;
+        velocityY = 1;
+    }
+}
+
+void Ball::multiplyVelY(double multiplier) {
+    if (velocityY == 0) {}
+    else if (velocityY < 0) {
+        velocityY *= multiplier;
+    } else {
+        velocityY /= multiplier;
     }
 }
