@@ -40,9 +40,9 @@ void animateBalls() {
     for (auto &ball : balls) {
         if (ball.getVelocityX() != 0 or ball.getVelocityY() != 0) {
             mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
-            refresh();
         }
     }
+    refresh();
 }
 
 void simulateGravity(int index) {
@@ -65,7 +65,7 @@ void animationLoop(unsigned index) {
                 --zmiennaDoZmiany;
             }
             animateBalls();
-            usleep(100000/std::abs(balls[index].getVelocityX()));
+            usleep(50000/std::abs(balls[index].getVelocityX()));
         }
         simulateGravity(index);
     }
