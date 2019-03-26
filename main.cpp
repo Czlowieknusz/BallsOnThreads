@@ -6,6 +6,7 @@
 #include <vector>
 #include <mutex>
 #include "DirectionGenerator.h"
+#include <cmath>
 
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
@@ -21,15 +22,14 @@
 int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
-//DirectionGenerator directionGenerator;
 
 void checkIfHitEdge(Ball &ball) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    if (ball.getCoordinateX() == 0 or ball.getCoordinateX() == maxX) {
+    if (ball.getCoordinateX() <= 0 or ball.getCoordinateX() >= maxX) {
         ball.turnVelX();
     }
 
-    if (ball.getCoordinateY() == 0 or ball.getCoordinateY() == maxY) {
+    if (ball.getCoordinateY() <= 0 or ball.getCoordinateY() >= maxY) {
         ball.turnVelY();
     }
 }
@@ -45,14 +45,29 @@ void animateBalls() {
     }
 }
 
+void simulateGravity(int index) {
+    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+    balls[index].decreaseVelX(0.6);
+}
+
 void animationLoop(unsigned index) {
+    int zmiennaDoZmiany = 2;
     while (balls[index].getVelocityX() != 0 or balls[index].getVelocityY() != 0) {
-        for (unsigned i = 0; i < 50; ++i) {
+        for (unsigned i = 0; i < 3; ++i) {
             checkIfHitEdge(balls[index]);
-            balls[index].move();
+            if (zmiennaDoZmiany == 0) {
+                zmiennaDoZmiany = std::abs(balls[index].getVelocityX());
+                std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+                balls[index].move();
+            } else {
+                std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+                balls[index].moveX();
+                --zmiennaDoZmiany;
+            }
             animateBalls();
-            usleep(100000);
+            usleep(100000/std::abs(balls[index].getVelocityX()));
         }
+        simulateGravity(index);
     }
 }
 
@@ -68,14 +83,6 @@ void calculateXYVals() {
     initY = maxY / 2;
 }
 
-void simulateGravity() {
-    usleep(3000);
-    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    for (auto &ball : balls) {
-        ball.multiplyVelY(0.2);
-    }
-}
-
 /*
  * TODO: Add thread ending program; Kulki maja sie generowac i nie znikac koniec na watku przycisk
  * */
@@ -86,15 +93,13 @@ int main() {
     calculateXYVals();
     DirectionGenerator directionGenerator;
     std::vector<std::thread> threadBalls;
-    std::thread gravitation(simulateGravity);
-    unsigned numberOfIteration = 0;
+//    std::thread gravitation(simulateGravity);
     while (true) {
         usleep(1500000);
         //
         generateBall(directionGenerator);
         std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));
-        //++numberOfIteration;
     }
     getch();
     endwin();

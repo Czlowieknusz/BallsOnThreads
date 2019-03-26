@@ -50,7 +50,7 @@ public:
 
     void decrementVelY();
 
-    void multiplyVelY(double multiplier);
+    void decreaseVelX(double);
 };
 
 

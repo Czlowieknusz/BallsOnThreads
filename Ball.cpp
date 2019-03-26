@@ -84,23 +84,22 @@ void Ball::decrementVelY() {
 
 Ball::Ball(int coordX, int coordY, int random)
         : coordinateX(coordX), coordinateY(coordY) {
+    int value = -2;
     if (random == 0) {
-        velocityX = -1;
-        velocityY = -1;
+        velocityX = value;
+        velocityY = value;
     } else if (random == 1) {
-        velocityX = -1;
+        velocityX = value;
         velocityY = 0;
     } else {
-        velocityX = -1;
-        velocityY = 1;
+        velocityX = value;
+        velocityY = (-1) * value;
     }
 }
 
-void Ball::multiplyVelY(double multiplier) {
-    if (velocityY == 0) {}
-    else if (velocityY < 0) {
-        velocityY *= multiplier;
-    } else {
-        velocityY /= multiplier;
+void Ball::decreaseVelX(double decrementValue) {
+    if (velocityX == 0) {}
+    else {
+        velocityX += decrementValue;
     }
 }
