@@ -7,7 +7,8 @@
 #include <mutex>
 #include "DirectionGenerator.h"
 #include <cmath>
-
+#include <menu.h>
+#include <stdio.h>
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
  * Może być ustawiony pod kątem 45, 90, 135 stopni. Jego prędkość ma stopniowo maleć.
@@ -45,6 +46,15 @@ void animateBalls() {
     refresh();
 }
 
+void checkIfEnd() {
+    while (true) {
+        if (getch()) {
+            endwin();
+            exit(1);
+        }
+    }
+}
+
 void simulateGravity(int index) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
     balls[index].decreaseVelX(0.6);
@@ -65,7 +75,7 @@ void animationLoop(unsigned index) {
                 --zmiennaDoZmiany;
             }
             animateBalls();
-            usleep(50000/std::abs(balls[index].getVelocityX()));
+            usleep(50000 / std::abs(balls[index].getVelocityX()));
         }
         simulateGravity(index);
     }
@@ -90,7 +100,9 @@ void calculateXYVals() {
 int main() {
     initscr();
     curs_set(0);
+    //nodelay(stdscr, TRUE);
     calculateXYVals();
+    std::thread worldEnder(checkIfEnd);
     DirectionGenerator directionGenerator;
     std::vector<std::thread> threadBalls;
 //    std::thread gravitation(simulateGravity);
