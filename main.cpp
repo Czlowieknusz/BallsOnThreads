@@ -46,6 +46,9 @@ void animateBalls() {
     refresh();
 }
 
+// TODO: NOWE ZADANIE: po ekranie wedruje rownia pochyla. pilka uderza w nia i zsuwa sie z hardcoded predkoscia zawsze w dol. Jesli jedna uderzy to czeka az wszystkie przed nia skoncza
+
+// TODO: poczekac na koniec watkow, zabic je
 void checkIfEnd() {
     while (true) {
         if (getch()) {
@@ -113,7 +116,4 @@ int main() {
         std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));
     }
-    getch();
-    endwin();
-    return 0;
 }
