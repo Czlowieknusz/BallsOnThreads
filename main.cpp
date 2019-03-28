@@ -20,6 +20,7 @@
  * TODO: Grawitacja i kursor koło kólki ma zniknąć
  */
 
+bool isEndOfProgram = false;
 int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
@@ -52,6 +53,7 @@ void animateBalls() {
 void checkIfEnd() {
     while (true) {
         if (getch()) {
+            isEndOfProgram = true;
             endwin();
             exit(1);
         }
@@ -65,7 +67,7 @@ void simulateGravity(int index) {
 
 void animationLoop(unsigned index) {
     int zmiennaDoZmiany = 2;
-    while (balls[index].getVelocityX() != 0 or balls[index].getVelocityY() != 0) {
+    while (!isEndOfProgram) {
         for (unsigned i = 0; i < 3; ++i) {
             checkIfHitEdge(balls[index]);
             if (zmiennaDoZmiany == 0) {
@@ -103,17 +105,18 @@ void calculateXYVals() {
 int main() {
     initscr();
     curs_set(0);
-    //nodelay(stdscr, TRUE);
     calculateXYVals();
     std::thread worldEnder(checkIfEnd);
     DirectionGenerator directionGenerator;
     std::vector<std::thread> threadBalls;
-//    std::thread gravitation(simulateGravity);
-    while (true) {
+    while (!isEndOfProgram) {
         usleep(1500000);
         //
         generateBall(directionGenerator);
         std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));
+    }
+    for (auto& thread : threadBalls) {
+        thread.join();
     }
 }
