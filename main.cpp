@@ -9,6 +9,8 @@
 #include <cmath>
 #include <menu.h>
 #include <stdio.h>
+#include "Line.h"
+
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
  * Może być ustawiony pod kątem 45, 90, 135 stopni. Jego prędkość ma stopniowo maleć.
@@ -27,24 +29,27 @@ std::mutex ncurses_mutex;
 
 void checkIfHitEdge(Ball &ball) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    if (ball.getCoordinateX() <= 0 or ball.getCoordinateX() >= maxX) {
+    if (ball.getCoordinateX() + ball.getVelocityX() <= 0 or ball.getCoordinateX() + ball.getVelocityX() >= maxX) {
         ball.turnVelX();
     }
 
-    if (ball.getCoordinateY() <= 0 or ball.getCoordinateY() >= maxY) {
+    if (ball.getCoordinateY() + ball.getVelocityY() <= 0 or ball.getCoordinateY() + ball.getVelocityY() >= maxY) {
         ball.turnVelY();
     }
 }
 
 void animateBalls() {
-    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    erase();
-    for (auto &ball : balls) {
-        if (ball.getVelocityX() != 0 or ball.getVelocityY() != 0) {
-            mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
+    while (!isEndOfProgram) {
+        usleep(50000);
+        std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+        erase();
+        for (auto &ball : balls) {
+            if (ball.getVelocityX() != 0 or ball.getVelocityY() != 0) {
+                mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
+            }
         }
+        refresh();
     }
-    refresh();
 }
 
 // TODO: NOWE ZADANIE: po ekranie wedruje rownia pochyla. pilka uderza w nia i zsuwa sie z hardcoded predkoscia zawsze w dol. Jesli jedna uderzy to czeka az wszystkie przed nia skoncza
@@ -79,7 +84,7 @@ void animationLoop(unsigned index) {
                 balls[index].moveX();
                 --zmiennaDoZmiany;
             }
-            animateBalls();
+            //animateBalls();
             usleep(50000 / std::abs(balls[index].getVelocityX()));
         }
         simulateGravity(index);
@@ -98,10 +103,6 @@ void calculateXYVals() {
     initY = maxY / 2;
 }
 
-/*
- * TODO: Add thread ending program; Kulki maja sie generowac i nie znikac koniec na watku przycisk
- * */
-
 int main() {
     initscr();
     curs_set(0);
@@ -109,14 +110,16 @@ int main() {
     std::thread worldEnder(checkIfEnd);
     DirectionGenerator directionGenerator;
     std::vector<std::thread> threadBalls;
+    std::thread animator(animateBalls);
+    Line line(initX, initY);
     while (!isEndOfProgram) {
         usleep(1500000);
-        //
         generateBall(directionGenerator);
         std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));
+        //
     }
-    for (auto& thread : threadBalls) {
+    for (auto &thread : threadBalls) {
         thread.join();
     }
 }
