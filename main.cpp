@@ -10,6 +10,7 @@
 #include <menu.h>
 #include <stdio.h>
 #include "Line.h"
+#include <memory>
 
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
@@ -26,6 +27,7 @@ bool isEndOfProgram = false;
 int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
+std::unique_ptr<Line> line;
 
 void checkIfHitEdge(Ball &ball) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
@@ -47,6 +49,9 @@ void animateBalls() {
             if (ball.getVelocityX() != 0 or ball.getVelocityY() != 0) {
                 mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
             }
+        }
+        for (auto &point : line->getPoints()) {
+            mvprintw(point.coordX_, point.coordY_, "/");
         }
         refresh();
     }
@@ -103,6 +108,14 @@ void calculateXYVals() {
     initY = maxY / 2;
 }
 
+void moveLine() {
+    while (!isEndOfProgram) {
+        usleep(50000);
+        line->changeDirectionIfNecessary(maxX, maxY);
+        line->move();
+    }
+}
+
 int main() {
     initscr();
     curs_set(0);
@@ -111,7 +124,8 @@ int main() {
     DirectionGenerator directionGenerator;
     std::vector<std::thread> threadBalls;
     std::thread animator(animateBalls);
-    Line line(initX, initY);
+    line = std::make_unique<Line>(initX, initY);
+    std::thread lineThread(moveLine);
     while (!isEndOfProgram) {
         usleep(1500000);
         generateBall(directionGenerator);

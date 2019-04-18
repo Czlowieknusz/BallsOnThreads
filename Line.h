@@ -20,6 +20,10 @@ public:
 
     void move();
 
+    const std::vector<Point> &getPoints() const;
+
+    void changeDirectionIfNecessary(int x, int y);
+
 private:
     std::vector<Point> points;
     bool moveDirection;
