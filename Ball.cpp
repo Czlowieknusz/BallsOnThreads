@@ -83,7 +83,7 @@ void Ball::decrementVelY() {
 }
 
 Ball::Ball(int coordX, int coordY, int random)
-        : coordinateX(coordX), coordinateY(coordY) {
+        : coordinateX(coordX), coordinateY(coordY), isInQueue(false) {
     int value = -2;
     if (random == 0) {
         velocityX = value;
@@ -102,4 +102,12 @@ void Ball::decreaseVelX(double decrementValue) {
     else {
         velocityX += decrementValue;
     }
+}
+
+bool Ball::isItInQueue() const {
+    return isInQueue;
+}
+
+void Ball::setIsInQueue(bool isInQueue) {
+    Ball::isInQueue = isInQueue;
 }

@@ -27,19 +27,21 @@
 
 bool isEndOfProgram = false;
 int maxX, maxY, initX, initY;
-std::vector<Ball> balls;
+std::vector<std::shared_ptr<Ball>> balls;
 std::mutex ncurses_mutex;
 std::unique_ptr<Line> line;
-//std::queue<Ball &> queue_balls;
+std::queue<std::shared_ptr<Ball>> queue_balls;
 
-void checkIfHitEdge(Ball &ball) {
+void checkIfHitEdge(const std::shared_ptr<Ball> &ball_ptr) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    if (ball.getCoordinateX() + ball.getVelocityX() <= 0 or ball.getCoordinateX() + ball.getVelocityX() >= maxX) {
-        ball.turnVelX();
+    if (ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() <= 0 or
+        ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() >= maxX) {
+        ball_ptr->turnVelX();
     }
 
-    if (ball.getCoordinateY() + ball.getVelocityY() <= 0 or ball.getCoordinateY() + ball.getVelocityY() >= maxY) {
-        ball.turnVelY();
+    if (ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() <= 0 or
+        ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() >= maxY) {
+        ball_ptr->turnVelY();
     }
 }
 
@@ -48,14 +50,18 @@ void animateBalls() {
         usleep(50000);
         std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
         erase();
-        for (auto &ball : balls) {
-            if (ball.getVelocityX() != 0 or ball.getVelocityY() != 0) {
-                mvprintw(ball.getCoordinateX(), ball.getCoordinateY(), "O");
+        for (auto ball_ptr : balls) {
+            if (ball_ptr->getVelocityX() != 0 or ball_ptr->getVelocityY() != 0) {
+                mvprintw(ball_ptr->getCoordinateX(), ball_ptr->getCoordinateY(), "O");
             }
         }
         for (auto &point : line->getPoints()) {
             mvprintw(point.coordX_, point.coordY_, "/");
         }
+        mvprintw(0, 0, "1");
+        mvprintw(0, 1, "2");
+        mvprintw(1, 0, "3");
+        mvprintw(1, 1, "4");
         refresh();
     }
 }
@@ -75,34 +81,33 @@ void checkIfEnd() {
 
 void simulateGravity(int index) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    balls[index].decreaseVelX(0.6);
+    balls[index]->decreaseVelX(0.6);
 }
 
 void animationLoop(unsigned index) {
-    int zmiennaDoZmiany = 2;
+    int numberOfMoveXBeforeY = 2;
     while (!isEndOfProgram) {
         for (unsigned i = 0; i < 3; ++i) {
             checkIfHitEdge(balls[index]);
-            if (zmiennaDoZmiany == 0) {
-                zmiennaDoZmiany = std::abs(balls[index].getVelocityX());
+            if (numberOfMoveXBeforeY == 0) {
+                numberOfMoveXBeforeY = std::abs(balls[index]->getVelocityX());
                 std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-                balls[index].move();
+                balls[index]->move();
             } else {
                 std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-                balls[index].moveX();
-                --zmiennaDoZmiany;
+                balls[index]->moveX();
+                --numberOfMoveXBeforeY;
             }
-            //animateBalls();
-            usleep(50000 / std::abs(balls[index].getVelocityX()));
+            usleep(50000 / std::abs(balls[index]->getVelocityX()));
         }
         simulateGravity(index);
     }
 }
 
 void generateBall(DirectionGenerator &directionGenerator) {
-    Ball buf(initX, initY, directionGenerator.getRandom());
+    auto buf(std::make_shared<Ball>(initX, initY, directionGenerator.getRandom()));
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    balls.push_back(buf);
+    balls.push_back(std::move(buf));
 }
 
 void calculateXYVals() {
@@ -119,27 +124,33 @@ void moveLine() {
     }
 }
 
-bool checkIfHitLine(Ball &ball) {
-/*
+// mutex in manageCollisions
+bool checkIfHitLine(const std::shared_ptr<Ball> &ball_ptr) {
     for (auto &point: line->getPoints()) {
-        if (ball.getCoordinateX() - 1 >= point.coordX_ and ball.getCoordinateX() + 1 <= point.coordX_
-            and ball.getCoordinateY() - 1 >= point.coordY_ and ball.getCoordinateY() + 1 <= point.coordY_) {
+        if (ball_ptr->getCoordinateX() - 1 <= point.coordX_ and ball_ptr->getCoordinateX() + 1 >= point.coordX_
+            and ball_ptr->getCoordinateY() - 1 <= point.coordY_ and ball_ptr->getCoordinateY() + 1 >= point.coordY_) {
             return true;
         }
     }
     return false;
-*/
 }
 
 void manageCollisions() {
-/*    while (!isEndOfProgram) {
+    while (!isEndOfProgram) {
         usleep(5000);
-        for (auto &ball: balls) {
-            if (checkIfHitLine(std::ref(ball))) {
-                std::cout << "YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO";
+        std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+        for (const auto &ball: balls) {
+            if (!ball->isItInQueue()) {
+                if (checkIfHitLine(ball)) {
+                    ball->setCoordinateY(0);
+                    ball->setCoordinateX(0);
+
+                    ball->setIsInQueue(true);
+                    queue_balls.push(ball);
+                }
             }
         }
-    }*/
+    }
 }
 
 int main() {
@@ -164,9 +175,12 @@ int main() {
         generateBall(directionGenerator);
         std::thread threadBall(animationLoop, balls.size() - 1);
         threadBalls.push_back(std::move(threadBall));
-        //
     }
     for (auto &thread : threadBalls) {
         thread.join();
     }
+    worldEnder.join();
+    animator.join();
+    lineThread.join();
+    collisionManager.join();
 }

@@ -28,10 +28,15 @@ public:
     Ball(int coordinateX, int coordinateY, int random);
 
 private:
-    int coordinateX;
-    int coordinateY;
     double velocityX;
     double velocityY;
+    int coordinateX;
+    int coordinateY;
+    bool isInQueue;
+public:
+    bool isItInQueue() const;
+
+    void setIsInQueue(bool isInQueue);
 
 public:
     double getVelocityX() const;
