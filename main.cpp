@@ -11,16 +11,18 @@
 #include <stdio.h>
 #include "Line.h"
 #include <memory>
+#include <queue>
 
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
  * Może być ustawiony pod kątem 45, 90, 135 stopni. Jego prędkość ma stopniowo maleć.
  * Wykorzystana ma być biblioteka ncurses w celu wizualizacji.
  *
- */
-
-/*
- * TODO: Grawitacja i kursor koło kólki ma zniknąć
+ * Etap 2:
+ *
+ * Po ekranie wędruje linia.
+ * Gdy jakaś piłeczka w nią uderzy kolejkuje się wewnątrz lini i porusza wraz z nią.
+ *
  */
 
 bool isEndOfProgram = false;
@@ -28,6 +30,7 @@ int maxX, maxY, initX, initY;
 std::vector<Ball> balls;
 std::mutex ncurses_mutex;
 std::unique_ptr<Line> line;
+//std::queue<Ball &> queue_balls;
 
 void checkIfHitEdge(Ball &ball) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
@@ -116,16 +119,46 @@ void moveLine() {
     }
 }
 
+bool checkIfHitLine(Ball &ball) {
+/*
+    for (auto &point: line->getPoints()) {
+        if (ball.getCoordinateX() - 1 >= point.coordX_ and ball.getCoordinateX() + 1 <= point.coordX_
+            and ball.getCoordinateY() - 1 >= point.coordY_ and ball.getCoordinateY() + 1 <= point.coordY_) {
+            return true;
+        }
+    }
+    return false;
+*/
+}
+
+void manageCollisions() {
+/*    while (!isEndOfProgram) {
+        usleep(5000);
+        for (auto &ball: balls) {
+            if (checkIfHitLine(std::ref(ball))) {
+                std::cout << "YOOOOOOOOOOOOOOOOOOOOOOOOOOOOOO";
+            }
+        }
+    }*/
+}
+
 int main() {
     initscr();
     curs_set(0);
     calculateXYVals();
+
     std::thread worldEnder(checkIfEnd);
+
     DirectionGenerator directionGenerator;
     std::vector<std::thread> threadBalls;
+
     std::thread animator(animateBalls);
+
     line = std::make_unique<Line>(initX, initY);
+
     std::thread lineThread(moveLine);
+    std::thread collisionManager(manageCollisions);
+
     while (!isEndOfProgram) {
         usleep(1500000);
         generateBall(directionGenerator);

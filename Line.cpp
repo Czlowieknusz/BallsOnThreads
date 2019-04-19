@@ -34,4 +34,8 @@ void Line::changeDirectionIfNecessary(int max_y) {
     }
 }
 
+bool Line::isMoveDirection() const {
+    return moveDirection;
+}
+
 Point::Point(int coordX, int coordY) : coordX_(coordX), coordY_(coordY) {}

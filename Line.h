@@ -26,6 +26,10 @@ public:
 
 private:
     std::vector<Point> points;
+public:
+    bool isMoveDirection() const;
+
+private:
     bool moveDirection;
 };
 
