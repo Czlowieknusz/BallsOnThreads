@@ -22,7 +22,7 @@ public:
 
     const std::vector<Point> &getPoints() const;
 
-    void changeDirectionIfNecessary(int x, int y);
+    void changeDirectionIfNecessary(int max_y);
 
 private:
     std::vector<Point> points;

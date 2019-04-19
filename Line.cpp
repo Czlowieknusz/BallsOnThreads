@@ -26,10 +26,10 @@ const std::vector<Point> &Line::getPoints() const {
     return points;
 }
 
-void Line::changeDirectionIfNecessary(int x, int y) {
-    if ((points.end() - 1)->coordX_ >= x) {
+void Line::changeDirectionIfNecessary(int max_y) {
+    if ((points.begin())->coordY_ <= 0) {
         moveDirection = false;
-    } else if ((points.begin())->coordX_ <= x) {
+    } else if ((points.end() - 1)->coordY_ >= max_y) {
         moveDirection = true;
     }
 }

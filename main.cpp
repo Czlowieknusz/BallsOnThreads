@@ -111,7 +111,7 @@ void calculateXYVals() {
 void moveLine() {
     while (!isEndOfProgram) {
         usleep(50000);
-        line->changeDirectionIfNecessary(maxX, maxY);
+        line->changeDirectionIfNecessary(maxY - 1);
         line->move();
     }
 }
