@@ -1,5 +1,6 @@
 #include <cmath>
 #include <iostream>
+#include <list>
 #include <memory>
 #include <mutex>
 #include <queue>
@@ -30,7 +31,7 @@
 
 bool isEndOfProgram = false;
 int maxX, maxY, initX, initY;
-std::vector<std::shared_ptr<Ball>> balls;
+std::list<std::shared_ptr<Ball>> balls;
 std::mutex ncurses_mutex;
 std::unique_ptr<Line> line;
 
@@ -52,18 +53,18 @@ void animateBalls() {
         usleep(50000);
         std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
         erase();
-        for (auto ball_ptr : balls) {
+        for (const auto &ball_ptr : balls) {
             if (ball_ptr->getVelocityX() != 0 or ball_ptr->getVelocityY() != 0) {
                 mvprintw(ball_ptr->getCoordinateX(), ball_ptr->getCoordinateY(), "O");
             }
         }
-        for (auto &point : line->getPoints()) {
+        for (const auto &point : line->getPoints()) {
             mvprintw(point.coordX_, point.coordY_, "/");
-        }
+        }/*
         mvprintw(0, 0, "1");
         mvprintw(0, 1, "2");
         mvprintw(1, 0, "3");
-        mvprintw(1, 1, "4");
+        mvprintw(1, 1, "4");*/
         refresh();
     }
 }
@@ -81,28 +82,30 @@ void checkIfEnd() {
     }
 }
 
-void simulateGravity(int index) {
+void simulateGravity(std::shared_ptr<Ball> &ball) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    balls[index]->decreaseVelX(0.6);
+    ball->decreaseVelX(0.6);
 }
 
-void animationLoop(unsigned index) {
+// Change it to store ptr not index HURRAY
+// std::list ftw!
+void animationLoop(std::shared_ptr<Ball> &ball) {
     int numberOfMoveXBeforeY = 2;
     while (!isEndOfProgram) {
         for (unsigned i = 0; i < 3; ++i) {
-            checkIfHitEdge(balls[index]);
+            checkIfHitEdge(ball);
             if (numberOfMoveXBeforeY == 0) {
-                numberOfMoveXBeforeY = std::abs(balls[index]->getVelocityX());
+                numberOfMoveXBeforeY = std::abs(ball->getVelocityX());
                 std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-                balls[index]->move();
+                ball->move();
             } else {
                 std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-                balls[index]->moveX();
+                ball->moveX();
                 --numberOfMoveXBeforeY;
             }
-            usleep(50000 / std::abs(balls[index]->getVelocityX()));
+            usleep(50000 / std::abs(ball->getVelocityX()));
         }
-        simulateGravity(index);
+        simulateGravity(ball);
     }
 }
 
@@ -177,7 +180,7 @@ int main() {
     while (!isEndOfProgram) {
         usleep(1500000);
         generateBall(directionGenerator);
-        std::thread threadBall(animationLoop, balls.size() - 1);
+        std::thread threadBall(animationLoop, std::ref(*balls.rbegin()));
         threadBalls.push_back(std::move(threadBall));
     }
     for (auto &thread : threadBalls) {
