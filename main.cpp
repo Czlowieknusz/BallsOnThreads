@@ -54,9 +54,7 @@ void animateBalls() {
         std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
         erase();
         for (const auto &ball_ptr : balls) {
-            if (ball_ptr->getVelocityX() != 0 or ball_ptr->getVelocityY() != 0) {
-                mvprintw(ball_ptr->getCoordinateX(), ball_ptr->getCoordinateY(), "O");
-            }
+            mvprintw(ball_ptr->getCoordinateX(), ball_ptr->getCoordinateY(), "O");
         }
         for (const auto &point : line->getPoints()) {
             mvprintw(point.coordX_, point.coordY_, "/");
@@ -147,9 +145,9 @@ void manageCollisions(std::queue<std::shared_ptr<BallHolder>> &queue_balls) {
         for (const auto &ball: balls) {
             if (!ball->isItInQueue()) {
                 if (checkIfHitLine(ball)) {
-                    ball->setCoordinateY(0);
-                    ball->setCoordinateX(0);
-
+                    /*               ball->setCoordinateY(0);
+                                   ball->setCoordinateX(0);
+               */
                     ball->setIsInQueue(true);
                     queue_balls.emplace(std::make_shared<BallHolder>(ball));
                 }
