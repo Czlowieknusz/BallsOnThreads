@@ -1,17 +1,20 @@
-#include <iostream>
-#include "Ball.h"
-#include <thread>
-#include <ncurses.h>
-#include <unistd.h>
-#include <vector>
-#include <mutex>
-#include "DirectionGenerator.h"
 #include <cmath>
-#include <menu.h>
-#include <stdio.h>
-#include "Line.h"
+#include <iostream>
 #include <memory>
+#include <mutex>
 #include <queue>
+#include <thread>
+#include <vector>
+
+#include <menu.h>
+#include <ncurses.h>
+#include <stdio.h>
+#include <unistd.h>
+
+#include "Ball.h"
+#include "BallHolder.h"
+#include "DirectionGenerator.h"
+#include "Line.h"
 
 /*
  * Aplikacja tworząca co 5 sekund obiektu Ball. Każdy ma ustalony początkowy wektor ruchu
@@ -30,7 +33,6 @@ int maxX, maxY, initX, initY;
 std::vector<std::shared_ptr<Ball>> balls;
 std::mutex ncurses_mutex;
 std::unique_ptr<Line> line;
-std::queue<std::shared_ptr<Ball>> queue_balls;
 
 void checkIfHitEdge(const std::shared_ptr<Ball> &ball_ptr) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
@@ -135,7 +137,7 @@ bool checkIfHitLine(const std::shared_ptr<Ball> &ball_ptr) {
     return false;
 }
 
-void manageCollisions() {
+void manageCollisions(std::queue<std::shared_ptr<BallHolder>> &queue_balls) {
     while (!isEndOfProgram) {
         usleep(5000);
         std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
@@ -146,7 +148,7 @@ void manageCollisions() {
                     ball->setCoordinateX(0);
 
                     ball->setIsInQueue(true);
-                    queue_balls.push(ball);
+                    queue_balls.emplace(std::make_shared<BallHolder>(ball));
                 }
             }
         }
@@ -167,8 +169,10 @@ int main() {
 
     line = std::make_unique<Line>(initX, initY);
 
+    std::queue<std::shared_ptr<BallHolder>> queue_balls;
+    std::thread collisionManager(manageCollisions, std::ref(queue_balls));
+
     std::thread lineThread(moveLine);
-    std::thread collisionManager(manageCollisions);
 
     while (!isEndOfProgram) {
         usleep(1500000);
