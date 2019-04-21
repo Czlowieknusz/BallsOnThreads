@@ -23,10 +23,10 @@ public:
 
     void setCoordinateY(int coordinateY);
 
-//    Ball(int coordinateX, int coordinateY, int velocity);
-
     Ball(int coordinateX, int coordinateY, int random);
 
+    void incrementCoordY();
+    void decrementCoordY();
 private:
     double velocityX;
     double velocityY;
@@ -38,7 +38,6 @@ public:
 
     void setIsInQueue(bool isInQueue);
 
-public:
     double getVelocityX() const;
 
     void setVelocityX(double velocityX);

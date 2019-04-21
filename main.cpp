@@ -53,16 +53,13 @@ void animateBalls() {
         usleep(50000);
         std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
         erase();
+        for (const auto &point : line->getPoints()) {
+            mvprintw(point.coordX_, point.coordY_, "/");
+        }
         for (const auto &ball_ptr : balls) {
             mvprintw(ball_ptr->getCoordinateX(), ball_ptr->getCoordinateY(), "O");
         }
-        for (const auto &point : line->getPoints()) {
-            mvprintw(point.coordX_, point.coordY_, "/");
-        }/*
-        mvprintw(0, 0, "1");
-        mvprintw(0, 1, "2");
-        mvprintw(1, 0, "3");
-        mvprintw(1, 1, "4");*/
+
         refresh();
     }
 }
@@ -119,11 +116,10 @@ void calculateXYVals() {
     initY = maxY / 2;
 }
 
-// mutex in manageCollisions
-
+// probably mutex will be needed
 void lineThreadFunction() {
     while (!isEndOfProgram) {
-        usleep(5000);
+        usleep(50000);
         line->moveLine(maxY);
     }
 }

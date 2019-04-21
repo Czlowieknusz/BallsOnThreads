@@ -65,8 +65,7 @@ void Ball::turnVelY() {
 }
 
 void Ball::decrementVelX() {
-    if (velocityX == 0) {}
-    else if (velocityX < 0) {
+    if (velocityX < 0) {
         ++velocityX;
     } else {
         --velocityX;
@@ -74,8 +73,7 @@ void Ball::decrementVelX() {
 }
 
 void Ball::decrementVelY() {
-    if (velocityY == 0) {}
-    else if (velocityY < 0) {
+    if (velocityY < 0) {
         ++velocityY;
     } else {
         --velocityY;
@@ -110,4 +108,12 @@ bool Ball::isItInQueue() const {
 
 void Ball::setIsInQueue(bool isInQueue) {
     Ball::isInQueue = isInQueue;
+}
+
+void Ball::decrementCoordY() {
+    --coordinateY;
+}
+
+void Ball::incrementCoordY() {
+    ++coordinateY;
 }

@@ -9,3 +9,12 @@ BallHolder::BallHolder(const std::shared_ptr<Ball> &ball) : ball_(ball), velocit
     ball_->setVelocityX(0);
     ball_->setVelocityY(0);
 }
+
+BallHolder::~BallHolder() {
+    ball_->setVelocityX(velocityX_);
+    ball_->setVelocityY(velocityY_);
+}
+
+const std::shared_ptr<Ball> &BallHolder::getBall() const {
+    return ball_;
+}

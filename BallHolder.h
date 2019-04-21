@@ -12,6 +12,10 @@ class BallHolder {
 public:
     explicit BallHolder(const std::shared_ptr<Ball> &ball);
 
+    ~BallHolder();
+
+    const std::shared_ptr<Ball> &getBall() const;
+
 private:
     std::shared_ptr<Ball> ball_;
     int velocityX_;

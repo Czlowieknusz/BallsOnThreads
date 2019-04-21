@@ -15,9 +15,19 @@ void Line::move() {
         for (auto &point : points) {
             --point.coordY_;
         }
+        for (auto &ball : balls_) {
+            if (ball->isItInQueue()) {
+                ball->decrementCoordY();
+            }
+        }
     } else {
         for (auto &point : points) {
             ++point.coordY_;
+        }
+        for (auto &ball : balls_) {
+            if (ball->isItInQueue()) {
+                ball->incrementCoordY();
+            }
         }
     }
 }
@@ -38,7 +48,7 @@ Point::Point(int coordX, int coordY) : coordX_(coordX), coordY_(coordY) {}
 
 
 void Line::manageCollisions() {
-    for (const auto &ball: balls_) {
+    for (const auto &ball : balls_) {
         if (!ball->isItInQueue()) {
             if (checkIfHitLine(ball)) {
                 ball->setIsInQueue(true);
