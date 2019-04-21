@@ -119,40 +119,12 @@ void calculateXYVals() {
     initY = maxY / 2;
 }
 
-void moveLine() {
-    while (!isEndOfProgram) {
-        usleep(50000);
-        line->changeDirectionIfNecessary(maxY - 1);
-        line->move();
-    }
-}
-
 // mutex in manageCollisions
-bool checkIfHitLine(const std::shared_ptr<Ball> &ball_ptr) {
-    for (auto &point: line->getPoints()) {
-        if (ball_ptr->getCoordinateX() - 1 <= point.coordX_ and ball_ptr->getCoordinateX() + 1 >= point.coordX_
-            and ball_ptr->getCoordinateY() - 1 <= point.coordY_ and ball_ptr->getCoordinateY() + 1 >= point.coordY_) {
-            return true;
-        }
-    }
-    return false;
-}
 
-void manageCollisions(std::queue<std::shared_ptr<BallHolder>> &queue_balls) {
+void lineThreadFunction() {
     while (!isEndOfProgram) {
         usleep(5000);
-        std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-        for (const auto &ball: balls) {
-            if (!ball->isItInQueue()) {
-                if (checkIfHitLine(ball)) {
-                    /*               ball->setCoordinateY(0);
-                                   ball->setCoordinateX(0);
-               */
-                    ball->setIsInQueue(true);
-                    queue_balls.emplace(std::make_shared<BallHolder>(ball));
-                }
-            }
-        }
+        line->moveLine(maxY);
     }
 }
 
@@ -168,12 +140,12 @@ int main() {
 
     std::thread animator(animateBalls);
 
-    line = std::make_unique<Line>(initX, initY);
+    line = std::make_unique<Line>(initX, initY, balls);
 
-    std::queue<std::shared_ptr<BallHolder>> queue_balls;
-    std::thread collisionManager(manageCollisions, std::ref(queue_balls));
+//    std::queue<std::shared_ptr<BallHolder>> queue_balls;
+    //std::thread collisionManager(manageCollisions, std::ref(queue_balls));
 
-    std::thread lineThread(moveLine);
+    std::thread lineThread(lineThreadFunction);
 
     while (!isEndOfProgram) {
         usleep(1500000);
@@ -187,5 +159,5 @@ int main() {
     worldEnder.join();
     animator.join();
     lineThread.join();
-    collisionManager.join();
+//    collisionManager.join();
 }
