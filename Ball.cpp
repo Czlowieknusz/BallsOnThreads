@@ -117,3 +117,11 @@ void Ball::decrementCoordY() {
 void Ball::incrementCoordY() {
     ++coordinateY;
 }
+
+void Ball::incrementCoordX() {
+    ++coordinateX;
+}
+
+void Ball::decrementCoordX() {
+    --coordinateX;
+}

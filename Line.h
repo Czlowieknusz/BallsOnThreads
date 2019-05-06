@@ -37,6 +37,8 @@ public:
 
 private:
     bool moveDirection;
+    int maxX;
+    int maxY;
 
     std::list<std::shared_ptr<Ball>> &balls_;
     std::queue<std::shared_ptr<BallHolder>> queue_balls;
@@ -45,6 +47,10 @@ private:
     void manageCollisions();
 
     bool checkIfHitLine(const std::shared_ptr<Ball> &ball_ptr);
+
+    bool checkIfBallAtBottom(const std::shared_ptr<Ball> &ball_ptr);
+
+    void moveQueue();
 };
 
 

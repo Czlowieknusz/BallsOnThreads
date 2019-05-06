@@ -136,7 +136,7 @@ int main() {
 
     std::thread animator(animateBalls);
 
-    line = std::make_unique<Line>(initX, initY, balls);
+    line = std::make_unique<Line>(maxX, maxY, balls);
 
 //    std::queue<std::shared_ptr<BallHolder>> queue_balls;
     //std::thread collisionManager(manageCollisions, std::ref(queue_balls));

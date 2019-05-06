@@ -27,6 +27,8 @@ public:
 
     void incrementCoordY();
     void decrementCoordY();
+    void incrementCoordX();
+    void decrementCoordX();
 private:
     double velocityX;
     double velocityY;

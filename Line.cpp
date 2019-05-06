@@ -4,7 +4,8 @@
 
 #include "Line.h"
 
-Line::Line(int x, int y, std::list<std::shared_ptr<Ball>> &balls) : moveDirection(false), balls_(balls) {
+Line::Line(int x, int y, std::list<std::shared_ptr<Ball>> &balls) : moveDirection(false), balls_(balls), maxX(x),
+                                                                    maxY(y) {
     for (int i = 0; i < x + 1; ++i) {
         points.emplace_back(Point(x - i, y + i));
     }
@@ -20,6 +21,13 @@ void Line::move() {
                 ball->decrementCoordY();
             }
         }
+        /*if (not queue_balls.empty()) {
+            if (not checkIfBallAtBottom(queue_balls.front()->getBall())) {
+                queue_balls.front()->getBall()->decrementCoordX();
+            } else {
+                queue_balls.pop();
+            }
+        }*/
     } else {
         for (auto &point : points) {
             ++point.coordY_;
@@ -29,6 +37,13 @@ void Line::move() {
                 ball->incrementCoordY();
             }
         }
+        /*if (not queue_balls.empty()) {
+            if (not checkIfBallAtBottom(queue_balls.front()->getBall())) {
+                queue_balls.front()->getBall()->incrementCoordX();
+            } else {
+                queue_balls.pop();
+            }
+        }*/
     }
 }
 
@@ -76,4 +91,17 @@ bool Line::checkIfHitLine(const std::shared_ptr<Ball> &ball_ptr) {
 
 const std::vector<Point> &Line::getPoints() const {
     return points;
+}
+
+void Line::moveQueue() {
+    if (not queue_balls.empty()) {
+        queue_balls.front()->getBall()->decrementCoordX();
+    }
+}
+
+bool Line::checkIfBallAtBottom(const std::shared_ptr<Ball> &ball_ptr) {
+    if (ball_ptr->getCoordinateX() >= maxX - 1) {
+        return true;
+    }
+    return false;
 }
