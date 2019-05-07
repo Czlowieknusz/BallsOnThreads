@@ -35,24 +35,22 @@ std::list<std::shared_ptr<Ball>> balls;
 std::mutex ncurses_mutex;
 std::unique_ptr<Line> line;
 
-bool reachedBottom(const std::shared_ptr<Ball> &ball_ptr) {
-    return ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() >= maxX
-           and static_cast<bool>(ball_ptr->getVelocityX());
+bool reachedTop(const std::shared_ptr<Ball> &ball_ptr) {
+    return ball_ptr->getCoordinateX() + 1 <= 0
+           and ball_ptr->getVelocityX() < 0;
 }
 
-bool reachedTop(const std::shared_ptr<Ball> &ball_ptr) {
-    return ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() <= 0
-           and not static_cast<bool>(ball_ptr->getVelocityX());
+bool reachedBottom(const std::shared_ptr<Ball> &ball_ptr) {
+    return ball_ptr->getCoordinateX() - 1 >= maxX
+           and ball_ptr->getVelocityX() > 0;
 }
 
 bool reachedLeft(const std::shared_ptr<Ball> &ball_ptr) {
-    return ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() <= 0
-           and not static_cast<bool>(ball_ptr->getVelocityY());
+    return ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() <= 0;
 }
 
 bool reachedRight(const std::shared_ptr<Ball> &ball_ptr) {
-    return ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() >= maxY
-           and static_cast<bool>(ball_ptr->getVelocityY());
+    return ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() >= maxY;
 }
 
 void checkIfHitEdge(const std::shared_ptr<Ball> &ball_ptr) {
@@ -118,7 +116,9 @@ void animationLoop(std::shared_ptr<Ball> &ball) {
             }
             usleep(50000 / std::abs(ball->getVelocityX()));
         }
-        simulateGravity(ball);
+        if (ball->getCoordinateX() <= maxX) {
+            simulateGravity(ball);
+        }
     }
 }
 

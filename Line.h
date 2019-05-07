@@ -49,8 +49,6 @@ private:
     bool checkIfHitLine(const std::shared_ptr<Ball> &ball_ptr);
 
     bool checkIfBallAtBottom(const std::shared_ptr<Ball> &ball_ptr);
-
-    void moveQueue();
 };
 
 

@@ -21,13 +21,6 @@ void Line::move() {
                 ball->decrementCoordY();
             }
         }
-        if (not queue_balls.empty()) {
-            if (not checkIfBallAtBottom(queue_balls.front()->getBall())) {
-                queue_balls.front()->getBall()->incrementCoordX();
-            } else {
-                queue_balls.pop();
-            }
-        }
     } else {
         for (auto &point : points) {
             ++point.coordY_;
@@ -37,12 +30,12 @@ void Line::move() {
                 ball->incrementCoordY();
             }
         }
-        if (not queue_balls.empty()) {
-            if (not checkIfBallAtBottom(queue_balls.front()->getBall())) {
-                queue_balls.front()->getBall()->incrementCoordX();
-            } else {
-                queue_balls.pop();
-            }
+    }
+    if (not queue_balls.empty()) {
+        if (not checkIfBallAtBottom(queue_balls.front()->getBall())) {
+            queue_balls.front()->getBall()->moveByLine(1, -1);
+        } else {
+            queue_balls.pop();
         }
     }
 }
@@ -92,12 +85,6 @@ const std::vector<Point> &Line::getPoints() const {
     return points;
 }
 
-void Line::moveQueue() {
-    if (not queue_balls.empty()) {
-        queue_balls.front()->getBall()->decrementCoordX();
-    }
-}
-
 bool Line::checkIfBallAtBottom(const std::shared_ptr<Ball> &ball_ptr) {
-    return ball_ptr->getCoordinateX() >= maxX - 1;
+    return ball_ptr->getCoordinateX() +1 >= maxX;
 }
