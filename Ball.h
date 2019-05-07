@@ -57,6 +57,8 @@ public:
     void decrementVelY();
 
     void decreaseVelX(double);
+
+    void moveByLine(int deltaX, int deltaY);
 };
 
 

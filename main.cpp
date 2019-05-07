@@ -35,15 +35,33 @@ std::list<std::shared_ptr<Ball>> balls;
 std::mutex ncurses_mutex;
 std::unique_ptr<Line> line;
 
+bool reachedBottom(const std::shared_ptr<Ball> &ball_ptr) {
+    return ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() >= maxX
+           and static_cast<bool>(ball_ptr->getVelocityX());
+}
+
+bool reachedTop(const std::shared_ptr<Ball> &ball_ptr) {
+    return ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() <= 0
+           and not static_cast<bool>(ball_ptr->getVelocityX());
+}
+
+bool reachedLeft(const std::shared_ptr<Ball> &ball_ptr) {
+    return ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() <= 0
+           and not static_cast<bool>(ball_ptr->getVelocityY());
+}
+
+bool reachedRight(const std::shared_ptr<Ball> &ball_ptr) {
+    return ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() >= maxY
+           and static_cast<bool>(ball_ptr->getVelocityY());
+}
+
 void checkIfHitEdge(const std::shared_ptr<Ball> &ball_ptr) {
     std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-    if (ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() <= 0 or
-        ball_ptr->getCoordinateX() + ball_ptr->getVelocityX() >= maxX) {
+    if (reachedBottom(ball_ptr) or reachedTop(ball_ptr)) {
         ball_ptr->turnVelX();
     }
 
-    if (ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() <= 0 or
-        ball_ptr->getCoordinateY() + ball_ptr->getVelocityY() >= maxY) {
+    if (reachedLeft(ball_ptr) or reachedRight(ball_ptr)) {
         ball_ptr->turnVelY();
     }
 }
@@ -120,7 +138,7 @@ void calculateXYVals() {
 void lineThreadFunction() {
     while (!isEndOfProgram) {
         usleep(50000);
-        line->moveLine(maxY);
+        line->moveLine();
     }
 }
 

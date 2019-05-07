@@ -21,13 +21,13 @@ void Line::move() {
                 ball->decrementCoordY();
             }
         }
-        /*if (not queue_balls.empty()) {
+        if (not queue_balls.empty()) {
             if (not checkIfBallAtBottom(queue_balls.front()->getBall())) {
-                queue_balls.front()->getBall()->decrementCoordX();
+                queue_balls.front()->getBall()->incrementCoordX();
             } else {
                 queue_balls.pop();
             }
-        }*/
+        }
     } else {
         for (auto &point : points) {
             ++point.coordY_;
@@ -37,13 +37,13 @@ void Line::move() {
                 ball->incrementCoordY();
             }
         }
-        /*if (not queue_balls.empty()) {
+        if (not queue_balls.empty()) {
             if (not checkIfBallAtBottom(queue_balls.front()->getBall())) {
                 queue_balls.front()->getBall()->incrementCoordX();
             } else {
                 queue_balls.pop();
             }
-        }*/
+        }
     }
 }
 
@@ -66,14 +66,13 @@ void Line::manageCollisions() {
     for (const auto &ball : balls_) {
         if (!ball->isItInQueue()) {
             if (checkIfHitLine(ball)) {
-                ball->setIsInQueue(true);
-                queue_balls.emplace(std::make_shared<BallHolder>(ball));
+                queue_balls.emplace(std::make_unique<BallHolder>(ball));
             }
         }
     }
 }
 
-void Line::moveLine(int maxY) {
+void Line::moveLine() {
     changeDirectionIfNecessary(maxY - 1);
     move();
     manageCollisions();
@@ -100,8 +99,5 @@ void Line::moveQueue() {
 }
 
 bool Line::checkIfBallAtBottom(const std::shared_ptr<Ball> &ball_ptr) {
-    if (ball_ptr->getCoordinateX() >= maxX - 1) {
-        return true;
-    }
-    return false;
+    return ball_ptr->getCoordinateX() >= maxX - 1;
 }

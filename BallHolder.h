@@ -18,8 +18,8 @@ public:
 
 private:
     std::shared_ptr<Ball> ball_;
-    int velocityX_;
-    int velocityY_;
+    double velocityX_;
+    double velocityY_;
 };
 
 

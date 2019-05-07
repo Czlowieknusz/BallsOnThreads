@@ -33,7 +33,7 @@ public:
 
     bool isMoveDirection() const;
 
-    void moveLine(int maxY);
+    void moveLine();
 
 private:
     bool moveDirection;
@@ -41,7 +41,7 @@ private:
     int maxY;
 
     std::list<std::shared_ptr<Ball>> &balls_;
-    std::queue<std::shared_ptr<BallHolder>> queue_balls;
+    std::queue<std::unique_ptr<BallHolder>> queue_balls;
     std::vector<Point> points;
 
     void manageCollisions();

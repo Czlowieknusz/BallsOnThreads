@@ -125,3 +125,8 @@ void Ball::incrementCoordX() {
 void Ball::decrementCoordX() {
     --coordinateX;
 }
+
+void Ball::moveByLine(int deltaX, int deltaY) {
+    coordinateY += deltaY;
+    coordinateX += deltaX;
+}
