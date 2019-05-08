@@ -26,9 +26,13 @@ public:
     Ball(int coordinateX, int coordinateY, int random);
 
     void incrementCoordY();
+
     void decrementCoordY();
+
     void incrementCoordX();
+
     void decrementCoordX();
+
 private:
     double velocityX;
     double velocityY;

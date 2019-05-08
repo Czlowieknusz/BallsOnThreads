@@ -75,7 +75,6 @@ void animateBalls() {
         for (const auto &ball_ptr : balls) {
             mvprintw(ball_ptr->getCoordinateX(), ball_ptr->getCoordinateY(), "O");
         }
-
         refresh();
     }
 }
@@ -104,15 +103,17 @@ void animationLoop(std::shared_ptr<Ball> &ball) {
     int numberOfMoveXBeforeY = 2;
     while (!isEndOfProgram) {
         for (unsigned i = 0; i < 3; ++i) {
-            checkIfHitEdge(ball);
-            if (numberOfMoveXBeforeY == 0) {
-                numberOfMoveXBeforeY = std::abs(ball->getVelocityX());
-                std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-                ball->move();
-            } else {
-                std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
-                ball->moveX();
-                --numberOfMoveXBeforeY;
+            if (not ball->isItInQueue()) {
+                checkIfHitEdge(ball);
+                if (numberOfMoveXBeforeY == 0) {
+                    numberOfMoveXBeforeY = std::abs(ball->getVelocityX());
+                    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+                    ball->move();
+                } else {
+                    std::lock_guard<std::mutex> lock_guard(ncurses_mutex);
+                    ball->moveX();
+                    --numberOfMoveXBeforeY;
+                }
             }
             usleep(50000 / std::abs(ball->getVelocityX()));
         }

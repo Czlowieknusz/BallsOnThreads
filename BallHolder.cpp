@@ -13,8 +13,10 @@ BallHolder::BallHolder(const std::shared_ptr<Ball> &ball) : ball_(ball), velocit
 
 BallHolder::~BallHolder() {
     ball_->setIsInQueue(false);
+/*
     velocityX_ >= 0 ? ball_->setVelocityX(velocityX_) : ball_->setVelocityX((-1) * velocityX_);
     ball_->setVelocityY(velocityY_);
+*/
 }
 
 const std::shared_ptr<Ball> &BallHolder::getBall() const {
