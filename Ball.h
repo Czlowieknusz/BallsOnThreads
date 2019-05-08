@@ -6,6 +6,8 @@
 #define BALLSONTHREADS_BALL_H
 
 #include "DirectionGenerator.h"
+#include <condition_variable>
+#include <mutex>
 
 class Ball {
 public:
@@ -39,7 +41,11 @@ private:
     int coordinateX;
     int coordinateY;
     bool isInQueue;
+
 public:
+    std::mutex mutex;
+    std::condition_variable conditionVariable;
+
     bool isItInQueue() const;
 
     void setIsInQueue(bool isInQueue);
